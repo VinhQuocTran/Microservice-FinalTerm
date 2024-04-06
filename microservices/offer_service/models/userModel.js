@@ -1,75 +1,79 @@
-const mongoose = require("mongoose");
-const validator = require("validator");
-const bcrypt = require("bcryptjs");
+const { Sequelize, DataTypes } = require('sequelize');
+const bcrypt = require('bcryptjs');
 
-const userSchema = new mongoose.Schema({
+const sequelize = new Sequelize({
+  dialect: 'mysql',
+  host: process.env.DB_HOST,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+});
+
+const User = sequelize.define('User', {
   name: {
-    type: String,
-    required: [true, "Please fill your name"],
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notNull: {
+        msg: 'Please fill your name',
+      },
+    },
   },
   email: {
-    type: String,
-    required: [true, "Please fill your email"],
+    type: DataTypes.STRING,
+    allowNull: false,
     unique: true,
+    validate: {
+      notNull: {
+        msg: 'Please fill your email',
+      },
+      isEmail: {
+        msg: 'Please provide a valid email',
+      },
+    },
     lowercase: true,
-    validate: [validator.isEmail, " Please provide a valid email"],
   },
   address: {
-    type: String,
+    type: DataTypes.STRING,
+    allowNull: true,
     trim: true,
   },
   password: {
-    type: String,
-    required: [true, "Please fill your password"],
-    minLength: 6,
-    select: false,
-  },
-  passwordConfirm: {
-    type: String,
-    required: [true, "Please fill your password confirm"],
+    type: DataTypes.STRING,
+    allowNull: false,
     validate: {
-      validator: function(el) {
-        // "this" works only on create and save
-        return el === this.password;
+      notNull: {
+        msg: 'Please fill your password',
       },
-      message: "Your password and confirmation password are not the same",
+      len: {
+        args: [6],
+        msg: 'Password must be at least 6 characters long',
+      },
+    },
+    set(value) {
+      // Hash the password before saving
+      const hashedPassword = bcrypt.hashSync(value, 12);
+      this.setDataValue('password', hashedPassword);
     },
   },
   role: {
-    type: String,
-    enum: ["admin", "teacher", "student"],
-    default: "student",
+    type: DataTypes.ENUM('admin', 'teacher', 'student'),
+    defaultValue: 'student',
   },
   active: {
-    type: Boolean,
-    default: true,
-    select: false,
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
   },
+}, {
+  sequelize,
+  modelName: 'User',
+  timestamps: true,
+  underscored: true,
 });
 
-// encrypt the password using 'bcryptjs'
-// Mongoose -> Document Middleware
-userSchema.pre("save", async function(next) {
-  // check the password if it is modified
-  if (!this.isModified("password")) {
-    return next();
-  }
-
-  // Hashing the password
-  this.password = await bcrypt.hash(this.password, 12);
-
-  // Delete passwordConfirm field
-  this.passwordConfirm = undefined;
-  next();
-});
-
-// This is Instance Method that is gonna be available on all documents in a certain collection
-userSchema.methods.correctPassword = async function(
-  typedPassword,
-  originalPassword,
-) {
-  return await bcrypt.compare(typedPassword, originalPassword);
+// Method to check if the provided password matches the stored hashed password
+User.prototype.correctPassword = async function(typedPassword) {
+  return await bcrypt.compare(typedPassword, this.password);
 };
 
-const User = mongoose.model("User", userSchema);
 module.exports = User;
