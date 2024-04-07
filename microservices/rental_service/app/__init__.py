@@ -8,9 +8,8 @@ def create_app():
     app = Flask(__name__)
     # Enable CORS
     CORS(app)
-    
     # Configure SQLAlchemy for MySQL
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:admin@172.17.0.2/real_estate' 
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://myAdmin:myPasswordaA#@real-estate-soa-mysql.mysql.database.azure.com/real_estate_soa'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
     # Initialize JWT
