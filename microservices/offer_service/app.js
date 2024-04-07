@@ -18,6 +18,9 @@ app.use(express.json({
 }));
 
 // schedule the auction process to run every 3 minutes
+// 
+// */3 * * * * 3 minutes
+// */5 * * * * * 5 seconds
 cron.schedule('*/3 * * * *', async () => {
     try {
         await createTokenTransactionForAuction();

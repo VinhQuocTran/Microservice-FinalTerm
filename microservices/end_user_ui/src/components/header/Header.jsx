@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { IoMdMenu, IoMdClose } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
-import { BASE_URL } from "../../utils/api";
+import { BASE_URL, BASE_RENTAL_URL } from "../../utils/api";
 import ContentWrapper from "../contentWrapper/ContentWrapper";
 import { logout, updateUser } from "../../redux/userSlice";
 import "./header.scss";
@@ -25,13 +25,23 @@ const Header = () => {
     setOpenMobileMenu(!openMobileMenu);
   };
 
-  const handleProfileModalClick = (e) => {
-    profileModalRef.current.style.visibility = !isProfileModalOpened ? 'visible' : 'hidden';
-    profileModalRef.current.style.opacity = !isProfileModalOpened ? 1 : 0;
-    if (isProfileModalOpened) e.stopPropagation();
-    setIsProfileModalOpened(prevState => !prevState);
-    const tempUser = JSON.parse(localStorage.getItem('user'));
-    setUser(tempUser);
+  const handleProfileModalClick = async (e) => {
+    try {
+      const response = await axios.get(BASE_RENTAL_URL + `/rental_income_wallet/${currentUser.user?.id}`, {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`
+        }
+      });
+      let tempUser = JSON.parse(localStorage.getItem('user'));
+      tempUser.cashBalance = response.data.total_current_balance;
+      setUser(tempUser);
+    } catch (err) {
+        console.log(err);
+      }
+      profileModalRef.current.style.visibility = !isProfileModalOpened ? 'visible' : 'hidden';
+      profileModalRef.current.style.opacity = !isProfileModalOpened ? 1 : 0;
+      if (isProfileModalOpened) e.stopPropagation();
+      setIsProfileModalOpened(prevState => !prevState);
   };
 
   const handleLogoutBtnClick = async () => {
