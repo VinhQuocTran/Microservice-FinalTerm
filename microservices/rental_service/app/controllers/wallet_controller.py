@@ -33,11 +33,16 @@ class WalletController():
             return jsonify({'message': 'Rental income wallet not found'}), 404
 
     # Function to update a rental income wallet by ID
-    def update_rental_income_wallet(self, id):
-        wallet = RentalIncomeWallet.query.get(id)
-        if wallet:
-            data = request.json
-            wallet.total_current_balance = data.get('total_current_balance', wallet.total_current_balance)
+    def update_rental_income_wallet(self):
+        data = request.json
+        seller_id = data.get('seller_id')
+        buyer_id = data.get('buyer_id')
+        amount = data.get('amount')
+        seller = RentalIncomeWallet.query.get(seller_id)
+        buyer = RentalIncomeWallet.query.get(buyer_id)
+        if seller and buyer:
+            seller.total_current_balance += amount
+            buyer.total_current_balance -= amount
             db.session.commit()
             return jsonify({'message': 'Rental income wallet updated successfully'}), 200
         else:
