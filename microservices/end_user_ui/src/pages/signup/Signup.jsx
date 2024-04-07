@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
-import { BASE_URL } from "../../utils/api";
+import { BASE_URL, BASE_RENTAL_URL } from "../../utils/api";
 import ContentWrapper from "../../components/contentWrapper/ContentWrapper";
 import { AuthFormInput } from "../../components/imports";
 import { loginFailure, loginStart, loginSuccess } from "../../redux/userSlice";
@@ -102,8 +102,14 @@ const Signup = () => {
     setIsLoading(true);
     try {
       const data = new FormData(e.target);
-      await axios.post(BASE_URL + "/accounts/signup", Object.fromEntries(data));
-      dispatch(loginSuccess(response.data));
+      let response =  await axios.post(BASE_URL + "/accounts/signup", Object.fromEntries(data));
+      const account_id = response.data.data.account.id;
+      response = await axios.post(BASE_RENTAL_URL + `/rental_income_wallet`,{
+        account_id: account_id,
+        total_current_balance: 0
+      });
+      console.log(response.data)
+
       setIsLoading(false);
       toast.success('Sign up successfully', {
         position: "top-right",
@@ -116,7 +122,6 @@ const Signup = () => {
         theme: "colored",
       });
     } catch (err) {
-      dispatch(loginFailure());
       toast.error('Internal Server Error!', {
         position: "top-right",
         autoClose: 5000,
