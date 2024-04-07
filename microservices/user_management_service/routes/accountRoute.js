@@ -2,6 +2,8 @@ const router = require('express').Router();
 const accountController = require('../controllers/accountController');
 const authController = require('../controllers/authController');
 
+router.post('/isValidJwt', authController.isValidJwt);
+
 router.post('/signup', authController.signup);
 router.post('/signin', authController.signin);
 router.get('/signout', authController.signout);
