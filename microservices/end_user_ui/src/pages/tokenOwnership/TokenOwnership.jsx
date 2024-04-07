@@ -3,7 +3,7 @@ import { TokenCard } from "../../components/imports";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { BASE_URL } from "../../utils/api";
+import { BASE_URL, BASE_RENTAL_URL } from "../../utils/api";
 import { setDarkTheme } from "../../redux/themeSlice";
 import BasicTable from "../../components/basicTable/BasicTable";
 import { toast, ToastContainer } from "react-toastify";
@@ -35,7 +35,7 @@ const TokenOwnership = () => {
       header: 'Date time',
       accessorKey: 'withdraw_date',
       cell: (info) => {
-        const dateTime = DateTime.fromMillis(Number(info.getValue()));
+        const dateTime = DateTime.fromFormat(info.getValue(), 'ccc, dd LLL yyyy HH:mm:ss \'GMT\'');
         const formattedDateTime = dateTime.toFormat('dd/LL/yyyy HH:mm:ss');
         return formattedDateTime;
       }
@@ -48,7 +48,7 @@ const TokenOwnership = () => {
 
   const handleWithdrawClick = async () => {
     try {
-      await axios.get(BASE_URL + `/chains/${currentUser.user.id}/getWithDrawRentalIncome`, {
+      await axios.get(BASE_RENTAL_URL + `/withdraw/${currentUser.user.id}/cash`, {
         headers: {
           Authorization: `Bearer ${currentUser.token}`
         }
@@ -59,7 +59,6 @@ const TokenOwnership = () => {
       user.cashBalance += Number(totalCurrentEarned);
       localStorage.setItem('user', JSON.stringify(user));
       dispatch(increaseCashBalance(totalCurrentEarned));
-      // dispatch(updateUser(currentUser.user));
 
       toast.success('Withdraw successfully', {
         position: "top-right",
@@ -113,13 +112,14 @@ const TokenOwnership = () => {
   useEffect(() => {
     const fetchHistoryWithdraw = async () => {
       try {
-        const response = await axios.get(BASE_URL + `/chains/${currentUser.user.id}/withdrawIncome`, {
+        const response = await axios.get(BASE_RENTAL_URL + `/withdraw/${currentUser.user.id}`, {
           headers: {
             Authorization: `Bearer ${currentUser.token}`
           }
         });
         console.log(response);
         setHistoryWithdraws(response.data.data);
+        setTotalCurrentEarned(response.data.total_withdraw);
       } catch (err) {
         console.log(err);
       }
