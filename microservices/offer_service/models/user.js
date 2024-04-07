@@ -1,15 +1,8 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const {DataTypes} = require('sequelize');
+const sequelize = require('../database/connection');
 const bcrypt = require('bcryptjs');
 
-const sequelize = new Sequelize({
-  dialect: 'mysql',
-  host: process.env.DB_HOST,
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-});
-
-const User = sequelize.define('User', {
+const User = sequelize.define('users', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -70,10 +63,5 @@ const User = sequelize.define('User', {
   timestamps: true,
   underscored: true,
 });
-
-// Method to check if the provided password matches the stored hashed password
-User.prototype.correctPassword = async function(typedPassword) {
-  return await bcrypt.compare(typedPassword, this.password);
-};
 
 module.exports = User;

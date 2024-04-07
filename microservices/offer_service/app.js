@@ -1,48 +1,44 @@
 const express = require('express');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
-const hpp = require('hpp');
 const cors = require('cors');
+const cron = require('node-cron');
 
-
-const userRoutes = require('./routes/userRoutes');
+const offerRoutes = require('./routes/tokenOfferRoutes');
 const globalErrHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
 const app = express();
+const sequelize = require('./database/connection');
+const {CreateTokenTransactionForAuction} = require('./controllers/tokenOfferController');
 
 // Allow Cross-Origin requests
 app.use(cors());
-
-// Set security HTTP headers
-app.use(helmet());
-
-// Limit request from the same API 
-const limiter = rateLimit({
-    max: 150,
-    windowMs: 60 * 60 * 1000,
-    message: 'Too Many Request from this IP, please try again in an hour'
-});
-app.use('/api', limiter);
 
 // Body parser, reading data from body into req.body
 app.use(express.json({
     limit: '15kb'
 }));
 
-// Data sanitization against Nosql query injection
-app.use(mongoSanitize());
+// schedule the auction process to run every 3 minutes
+cron.schedule('*/3 * * * *', async () => {
+    try {
+        await CreateTokenTransactionForAuction();
+        console.log('Auction process executed successfully.');
+    } catch (error) {
+        console.error('Error executing auction process:', error);
+    }
+});
 
-// Data sanitization against XSS(clean user input from malicious HTML code)
-app.use(xss());
-
-// Prevent parameter pollution
-app.use(hpp());
-
+// Connect to the database
+sequelize
+    .authenticate()
+    .then(() => {
+        console.log('Database connection has been established successfully.');
+    })
+    .catch((err) => {
+        console.error('Unable to connect to the database:', err);
+    });
 
 // Routes
-app.use('/api/v1/users', userRoutes);
+app.use('/api/offers', offerRoutes);
 
 // handle undefined Routes
 app.use('*', (req, res, next) => {
