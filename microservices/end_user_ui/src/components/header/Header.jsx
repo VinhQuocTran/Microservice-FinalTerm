@@ -32,17 +32,16 @@ const Header = () => {
           Authorization: `Bearer ${currentUser.token}`
         }
       });
-      profileModalRef.current.style.visibility = !isProfileModalOpened ? 'visible' : 'hidden';
-      profileModalRef.current.style.opacity = !isProfileModalOpened ? 1 : 0;
-      if (isProfileModalOpened) e.stopPropagation();
-      setIsProfileModalOpened(prevState => !prevState);
       let tempUser = JSON.parse(localStorage.getItem('user'));
       tempUser.cashBalance = response.data.total_current_balance;
       setUser(tempUser);
     } catch (err) {
         console.log(err);
       }
-    
+      profileModalRef.current.style.visibility = !isProfileModalOpened ? 'visible' : 'hidden';
+      profileModalRef.current.style.opacity = !isProfileModalOpened ? 1 : 0;
+      if (isProfileModalOpened) e.stopPropagation();
+      setIsProfileModalOpened(prevState => !prevState);
   };
 
   const handleLogoutBtnClick = async () => {
