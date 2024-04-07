@@ -48,12 +48,16 @@ const Header = () => {
 
   const updateProfileClick = async () => {
     try {
-      await axios.patch(BASE_URL + `/accounts/${currentUser.user?.id}`, user, {
+      const response = await axios.patch(BASE_URL + `/accounts/${currentUser.user?.id}`, user, {
         headers: {
           Authorization: `Bearer ${currentUser.token}`
         }
       });
-      dispatch(updateUser(user));
+      // dispatch(updateUser(user));
+      let user = localStorage.getItem("user");
+      user = JSON.parse(user);
+      user = JSON.parse(response.data.data);
+      localStorage.setItem("user", JSON.stringify(user));
 
       profileModalRef.current.style.visibility = !isProfileModalOpened ? 'visible' : 'hidden';
       profileModalRef.current.style.opacity = !isProfileModalOpened ? 1 : 0;

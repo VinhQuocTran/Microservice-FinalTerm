@@ -31,9 +31,9 @@ const DetailedHouse = () => {
     setLoading(true);
     const fetchProperty = async () => {
       try {
-        let response = await axios.get(BASE_URL + `/properties/detail/${propertyId}`);
-        setProperty(response.data.data.property);
-        setToken(response.data.data.token);
+        let response = await axios.get(BASE_URL + `/properties/${propertyId}`);
+        setProperty(response.data.data);
+        // setToken(response.data.data.token);
         console.log(response.data.data)
         setLoading(false);
       } catch (err) {
@@ -44,20 +44,20 @@ const DetailedHouse = () => {
     fetchProperty();
   }, [propertyId]);
 
-  useEffect(() => {
-    const fetchOffers = async () => {
-      try {
-        const response = await axios.get(BASE_URL + `/chains/offers`);
-        const currentOffers = response.data.data.filter(offer => offer.token_id === token.id && offer.is_active);
-        setTokenOffers(currentOffers);
-        console.log(currentOffers);
-      } catch (err) {
-        console.log(err);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchOffers = async () => {
+  //     try {
+  //       const response = await axios.get(BASE_URL + `/chains/offers`);
+  //       const currentOffers = response.data.data.filter(offer => offer.token_id === token.id && offer.is_active);
+  //       setTokenOffers(currentOffers);
+  //       console.log(currentOffers);
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   };
 
-    fetchOffers();
-  }, [token]);
+  //   fetchOffers();
+  // }, [token]);
 
   const openBuyModal = () => {
     if (!currentUser.user) {
