@@ -34,8 +34,9 @@ class TransactionController():
         return jsonify(result), 200
 
     def get_transaction_by_account_id(self, account_id):
-        transaction = RentalDailyIncomeTransaction.query.get(account_id)
-        if transaction:
-            return jsonify({'id': transaction.id, 'income_amount': transaction.income_amount, 'is_withdrawn': transaction.is_withdrawn, 'account_id': transaction.account_id}), 200
+        transactions = RentalDailyIncomeTransaction.query.filter_by(account_id=account_id).all()
+        result = [{'id': t.id, 'income_amount': t.income_amount, 'is_withdrawn': t.is_withdrawn, 'account_id': t.account_id} for t in transactions]
+        if result:
+            return jsonify({ "data":result}), 200
         else:
             return jsonify(message='User not have rental daily income transaction'), 404
