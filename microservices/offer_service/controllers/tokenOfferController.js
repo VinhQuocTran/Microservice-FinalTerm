@@ -4,7 +4,7 @@ const TokenTransaction = require('../models/tokenTransaction');
 // Create a new token offer
 const createTokenOffer = async (req, res) => {
     try {
-        const {account_id, quantity, at_price, is_buy } = req.body;
+        const {account_id, token_id, quantity, at_price, is_buy } = req.body;
         // Validate request body
         if (!account_id || !quantity || !at_price || is_buy === undefined) {
             return res.status(400).json({ error: 'Missing required fields' });
@@ -13,6 +13,7 @@ const createTokenOffer = async (req, res) => {
         const newTokenOffer = await TokenOffer.create({
             id: account_id+"_OFFER_" + new Date().getTime(),
             account_id,
+            token_id,
             quantity,
             at_price,
             is_buy,
@@ -37,7 +38,9 @@ const getAllActiveTokenOffers = async (req, res) => {
             }
         });
 
-        res.json(activeTokenOffers);
+        res.json({
+            data:activeTokenOffers
+        });
     } catch (error) {
         // Handle errors
         console.error('Error fetching active token offers:', error);
@@ -56,7 +59,9 @@ const getTokenOffersByAccountId = async (req, res) => {
         if (tokenOffers.length === 0) {
             return res.status(404).json({ error: 'Token offers not found for the provided account ID' });
         }
-        res.json(tokenOffers);
+        res.json({
+            data:tokenOffers
+        });
     } catch (error) {
         // Handle errors
         console.error('Error fetching token offers by account ID:', error);
@@ -115,7 +120,7 @@ const createTokenTransactionForAuction = async (req, res) => {
             }
         }
     }
-    return res.json({ message: 'Auction completed' });
+    console.log('Auction process executed successfully.');
 };
 
 

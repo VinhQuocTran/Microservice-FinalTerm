@@ -7,7 +7,7 @@ const globalErrHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
 const app = express();
 const sequelize = require('./database/connection');
-const {CreateTokenTransactionForAuction} = require('./controllers/tokenOfferController');
+const {createTokenTransactionForAuction} = require('./controllers/tokenOfferController');
 
 // Allow Cross-Origin requests
 app.use(cors());
@@ -20,7 +20,7 @@ app.use(express.json({
 // schedule the auction process to run every 3 minutes
 cron.schedule('*/3 * * * *', async () => {
     try {
-        await CreateTokenTransactionForAuction();
+        await createTokenTransactionForAuction();
         console.log('Auction process executed successfully.');
     } catch (error) {
         console.error('Error executing auction process:', error);
