@@ -9,7 +9,7 @@ def create_app():
     # Enable CORS
     CORS(app)
     # Configure SQLAlchemy for MySQL
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://myAdmin:myPasswordaA#@real-estate-soa-mysql.mysql.database.azure.com/real_estate_soa'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://myAdmin:myPasswordaA#@real-estate-soa-mysql.mysql.database.azure.com/rental_services_db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
     # Initialize JWT

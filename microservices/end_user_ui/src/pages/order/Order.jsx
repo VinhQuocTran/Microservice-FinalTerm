@@ -3,7 +3,7 @@ import BasicTable from "../../components/basicTable/BasicTable";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { setLightTheme } from "../../redux/themeSlice";
-import { BASE_URL, HOST_NAME } from "../../utils/api";
+import { BASE_URL,BASE_OFFER_URL, HOST_NAME } from "../../utils/api";
 import axios from "axios";
 import { DateTime } from "luxon";
 import { ToastContainer, toast } from "react-toastify";
@@ -22,25 +22,22 @@ const Order = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await axios.get(BASE_URL + `/chains/${currentUser.user.id}/orders`, {
+                const response = await axios.get(BASE_OFFER_URL + `/offers/${currentUser.user.id}`, {
                     headers: {
                         Authorization: `Bearer ${currentUser.token}`
                     }
                 });
 
-                console.log(response.data.data);
-
                 const tempOrders = response.data.data.map(order => {
                     return {
-                        createdDate: order.item.offer_time,
-                        houseName: order.property.address,
-                        url: HOST_NAME + '/properties/' + order.property.id,
-                        quantity: order.item.quantity,
-                        price: order.item.at_price,
-                        active: order.item.is_active ? "Active" : "Inactive",
-                        status: order.item.is_finished ? "Completed" : "Incompleted",
-                        type: order.item.is_buy ? "Buy" : "Sell",
-                        delete: { orderId: order.item.id, isActive: order.item.is_active }
+                        createdDate: order['createdAt'],
+                        tokenId: order.token_id,
+                        quantity: order.quantity,
+                        price: order.at_price,
+                        active: order.is_active ? "Active" : "Inactive",
+                        status: order.is_finished ? "Completed" : "Incompleted",
+                        type: order.is_buy ? "Buy" : "Sell",
+                        delete: { orderId: order.id, isActive: order.is_active }
                     }
                 });
 
@@ -102,19 +99,8 @@ const Order = () => {
             },
         },
         {
-            header: 'House name',
-            accessorKey: 'houseName',
-        },
-        {
-            header: 'URL',
-            accessorKey: 'url',
-            cell: (info) => {
-                return (
-                    <a style={{ color: 'blue', textDecoration: 'none' }} href={info.getValue()}>
-                        Click here
-                    </a>
-                );
-            },
+            header: 'Token ID',
+            accessorKey: 'tokenId',
         },
         {
             header: 'Quantity',

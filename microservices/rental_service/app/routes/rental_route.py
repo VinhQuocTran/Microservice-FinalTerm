@@ -46,7 +46,7 @@ def get_transaction_by_account_id(account_id):
     return transaction_controller.get_transaction_by_account_id(account_id)
 
 @jwt_required
-@rental_blueprint.route('/api/withdraw/<account_id>', methods=['POST'])
+@rental_blueprint.route('/api/withdraw/<account_id>/cash', methods=['GET'])
 def create_withdraw(account_id):
     return withdraw_controller.create_withdraw(account_id)
 @jwt_required
