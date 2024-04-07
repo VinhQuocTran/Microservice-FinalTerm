@@ -87,37 +87,35 @@ const createTokenTransactionForAuction = async (req, res) => {
     for (let buyOffer of buyOffers) {
         for (let sellOffer of sellOffers) {
             if (buyOffer.at_price >= sellOffer.at_price && buyOffer.quantity === sellOffer.quantity) {
-                await fetch(`http://127.0.0.1:3002/api/rental_income_wallet`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(
-                        {
-                        "seller_id": sellOffer.account_id,
-                        "buyer_id": buyOffer.account_id,
-                        "amount": sellOffer.at_price * sellOffer.quantity
-                    }),
-                }).then(response => async () =>{
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch rental income wallet');
-                    }
-                    else {
-                        let transaction = {
-                            id: sellOffer.id + "_"+buyOffer.id+"_OFFER_TRANS_"+new Date().getTime(),
-                            seller_token_offer_id: sellOffer.id,
-                            buyer_token_offer_id: buyOffer.id,
-                            created_at: new Date()
-                        };
-                        await TokenTransaction.create(transaction);
-                        sellOffer.is_finished = true;
-                        sellOffer.is_active = false;
-                        buyOffer.is_finished = true;
-                        buyOffer.is_active = false;
-                        await sellOffer.save();
-                        await buyOffer.save();
-                    }
-                });                
+                try{
+                    await fetch(`http://127.0.0.1:3002/api/rental_income_wallet`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(
+                            {
+                            "seller_id": sellOffer.account_id,
+                            "buyer_id": buyOffer.account_id,
+                            "amount": sellOffer.at_price * sellOffer.quantity
+                        }),
+                    })
+                    let transaction = {
+                        id: sellOffer.id + "_"+buyOffer.id+"_OFFER_TRANS_"+new Date().getTime(),
+                        seller_token_offer_id: sellOffer.id,
+                        buyer_token_offer_id: buyOffer.id,
+                        created_at: new Date()
+                    };
+                    await TokenTransaction.create(transaction);
+                    sellOffer.is_finished = true;
+                    sellOffer.is_active = false;
+                    buyOffer.is_finished = true;
+                    buyOffer.is_active = false;
+                    await sellOffer.save();
+                    await buyOffer.save();
+                }catch (error) {
+                    console.log(error)
+                }
                 
             }
         }
