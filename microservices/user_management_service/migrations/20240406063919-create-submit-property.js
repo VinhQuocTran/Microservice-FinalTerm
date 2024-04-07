@@ -22,6 +22,10 @@ module.exports = {
         type: Sequelize.DataTypes.ENUM('verification', 'listing'),
         allowNull: false,
       },
+      fee: {
+        type: Sequelize.DataTypes.DOUBLE,
+        allowNull: false
+      },
       propertyId: {
         field: 'property_id',
         type: Sequelize.DataTypes.UUID,

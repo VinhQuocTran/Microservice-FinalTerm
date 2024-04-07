@@ -47,12 +47,22 @@ const Header = () => {
   }
 
   const updateProfileClick = async () => {
+    const data = {
+      address: user.address,
+      phoneNumber: user.phoneNumber,
+      residentId: user.residentId,
+      cashBalance: user.cashBalance,
+      tokenBalance: user.tokenBalance,
+      username: user.username
+    };
+
     try {
-      const response = await axios.patch(BASE_URL + `/accounts/${currentUser.user?.id}`, user, {
+      const response = await axios.patch(BASE_URL + `/accounts/${currentUser.user?.id}`, data, {
         headers: {
           Authorization: `Bearer ${currentUser.token}`
         }
       });
+
       // dispatch(updateUser(user));
       let user = localStorage.getItem("user");
       user = JSON.parse(user);
@@ -124,11 +134,11 @@ const Header = () => {
           </div>
           <div className="inputForm">
             <label htmlFor="cashBalance">Cash balance</label>
-            <input id="cashBalance" type="number" min={0} value={user?.cashBalance} onChange={(e) => setUser((prev) => ({ ...prev, cashBalance: e.target.value }))} />
+            <input id="cashBalance" type="number" min={0} value={user?.cashBalance} onChange={(e) => setUser((prev) => ({ ...prev, cashBalance: parseFloat(e.target.value) }))} />
           </div>
           <div className="inputForm">
             <label htmlFor="tokenBalance">Token balance</label>
-            <input id="tokenBalance" type="number" min={0} value={user?.tokenBalance} onChange={(e) => setUser((prev) => ({ ...prev, tokenBalance: e.target.value }))} />
+            <input id="tokenBalance" type="number" min={0} value={user?.tokenBalance} onChange={(e) => setUser((prev) => ({ ...prev, tokenBalance: parseFloat(e.target.value) }))} />
           </div>
           <div className="submitBtns">
             <button type="button" onClick={updateProfileClick}>Save changes</button>

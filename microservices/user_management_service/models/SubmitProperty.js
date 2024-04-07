@@ -16,6 +16,10 @@ const SubmitProperty = sequelize.define(
       type: DataTypes.ENUM('verification', 'listing'),
       allowNull: false,
     },
+    fee: {
+      type: DataTypes.DOUBLE,
+      allowNull: false
+    },
     propertyId: {
       type: DataTypes.UUID,
       allowNull: false,

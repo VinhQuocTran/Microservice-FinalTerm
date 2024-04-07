@@ -163,11 +163,6 @@ const MyProperty = () => {
   ];
 
   const totalPrice = useRef();
-  const selectedBackgroundCheckServiceId = "SERVICE_0005";
-  const [selectedBackgroundCheckService, setSelectedBackgroundCheckService] =
-    useState("BGC_1"); //"BGC_1";
-  const [backgroundCheckServicePrice, setBackgroundCheckServicePrice] =
-    useState("500"); //"500";
   const [inspectionServices, setInspectionServices] = useState(null);
   const [valuationServices, setValuationServices] = useState(null);
   const [selectedInspectionService, setSelectedInspectionService] =
@@ -372,7 +367,6 @@ const MyProperty = () => {
     e.preventDefault();
 
     const data = new FormData(e.target);
-    data.append("backgroundCheck", selectedBackgroundCheckServiceId);
     data.append("totalPrice", totalPrice.current.dataset.value);
 
     try {
@@ -392,7 +386,7 @@ const MyProperty = () => {
 
         let user = localStorage.getItem("user");
         user = JSON.parse(user);
-        user.cashBalance = JSON.parse(updatedUser).cash_balance;
+        user.cashBalance = updatedUser.cashBalance;
         localStorage.setItem("user", JSON.stringify(user));
         dispatch(updateListingPropertyStatus(listingPropertyId));
       }
@@ -451,18 +445,8 @@ const MyProperty = () => {
       setValuationServices(response.data.data);
     };
 
-    const fetchBackgroundCheckService = async () => {
-      const response = await axios.get(
-        BASE_URL +
-          `/services/${selectedBackgroundCheckServiceId}`
-      );
-      setSelectedBackgroundCheckService(response.data.data.name);
-      setBackgroundCheckServicePrice(response.data.data.feePerTime);
-    };
-
     fetchInspectionServices();
     fetchValuationServices();
-    fetchBackgroundCheckService();
   }, []);
 
   useEffect(() => {
@@ -615,7 +599,7 @@ const MyProperty = () => {
             <div className="contentBody">
               <div className="selectBox">
                 <FilterItem
-                  title={"Property inspection"}
+                  title={"Property inspection & valuation"}
                   inputName={"inspection"}
                   isFilterItemOpen={isInspectionSelectOpened}
                   setIsFilterItemOpen={setIsInspectionSelectOpened}
@@ -627,50 +611,16 @@ const MyProperty = () => {
                 />
                 <span className="price">Price: {inspectionServicePrice}$</span>
               </div>
-              <div className="selectBox">
-                <FilterItem
-                  title={"Property valuation"}
-                  inputName={"valuation"}
-                  isFilterItemOpen={isValuationSelectOpened}
-                  setIsFilterItemOpen={setIsValuationSelectOpened}
-                  items={valuationServices}
-                  selectedItem={selectedValuationService}
-                  setSelectedItem={setSelectedValuationService}
-                  setServicePrice={setValuationServicePrice}
-                  isNotChange={false}
-                />
-                <span className="price">Price: {valuationServicePrice}$</span>
-              </div>
-              <div className="selectBox">
-                <FilterItem
-                  title={"Property background check"}
-                  inputName={"backgroundCheck"}
-                  isFilterItemOpen={false}
-                  setIsFilterItemOpen={null}
-                  items={[selectedBackgroundCheckService]}
-                  selectedItem={selectedBackgroundCheckService}
-                  setSelectedItem={null}
-                  setServicePrice={null}
-                  isNotChange={true}
-                />
-                <span className="price">
-                  Price: {backgroundCheckServicePrice}$
-                </span>
-              </div>
             </div>
             <div className="totalPrice">
               <span
                 ref={totalPrice}
                 data-value={
-                  parseInt(inspectionServicePrice) +
-                  parseInt(valuationServicePrice) +
-                  parseInt(backgroundCheckServicePrice)
+                  parseInt(inspectionServicePrice)
                 }
               >
                 Total:{" "}
-                {parseInt(inspectionServicePrice) +
-                  parseInt(valuationServicePrice) +
-                  parseInt(backgroundCheckServicePrice)}
+                {parseInt(inspectionServicePrice)}
                 $
               </span>
             </div>
