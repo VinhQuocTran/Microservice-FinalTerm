@@ -68,6 +68,8 @@ const requestListingProperty = catchAsync(async (req, res, next) => {
 
 const listingProperty = catchAsync(async (req, res, next) => {
   const { result, note } = req.body;
+  const { propertyValuation, monthlyRent, tokenSupply, tokenPrice, serviceId } =
+    req.body;
   const id = req.params.id;
 
   const property = await Property.findByPk(id);
@@ -81,11 +83,22 @@ const listingProperty = catchAsync(async (req, res, next) => {
 
   // 2) Insert a new record to submit_property
   const SubmitProperty = require("../models/SubmitProperty");
-  await SubmitProperty.create({
+  const submitProperty = await SubmitProperty.create({
     result,
     note,
     submitType: "listing",
     propertyId: id,
+  });
+
+  // 3) Insert a new record to listing_property
+  const ListingProperty = require("../models/ListingProperty");
+  await ListingProperty.create({
+    propertyValuation,
+    monthlyRent,
+    tokenSupply,
+    tokenPrice,
+    submitPropertyId: submitProperty.id,
+    serviceId,
   });
 
   res.status(200).json({
@@ -102,5 +115,5 @@ module.exports = {
   assignAccountId,
   verifyProperty,
   requestListingProperty,
-  listingProperty
+  listingProperty,
 };

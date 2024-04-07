@@ -59,7 +59,7 @@ const TokenModal = ({ isOpen, onClose, actionType, token,toast }) => {
                 ...formData,
                 ["is_buy"]: true
             });
-            let maxQuantity = token?.quantity;
+            let maxQuantity = token?.tokenSupply;
             if (name === "quantity" && value >= 1 && value <= maxQuantity) {
                 setFormData({
                     ...formData,
@@ -215,26 +215,29 @@ const TokenModal = ({ isOpen, onClose, actionType, token,toast }) => {
                     ) : (
                         <>
                             <div style={{ marginBottom: '15px' }}>
-                                <span style={{ margin: '15px' }}>Current price: {token?.token_price}</span>
+                                <span style={{ margin: '15px' }}>Current price: {token?.tokenPrice}</span>
                             </div>
                             <div>
-                                <span style={{ margin: '15px' }}>Total tokens: {token?.quantity}</span>
+                                <span style={{ margin: '15px' }}>Total tokens: {token?.tokenSupply}</span>
                             </div>
                             <TextField
                                 label="Quantity"
                                 type="number"
                                 name={"quantity"}
-                                inputProps={{ min: 1, max: token?.quantity }}
+                                inputProps={{ min: 1, max: token?.tokenSupply }}
                                 value={formData.quantity}
                                 onChange={handleAmountChange}
                                 fullWidth
                                 required
                                 style={{ margin: '15px' }}
                             />
+
+
                             <TextField
                                 label="At price"
                                 type="number"
                                 name={"at_price"}
+                                inputProps={{ min: 1 }}
                                 value={formData.at_price}
                                 onChange={handleAmountChange}
                                 fullWidth

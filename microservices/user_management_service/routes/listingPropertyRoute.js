@@ -2,6 +2,8 @@ const router = require('express').Router();
 const listingPropertyController = require('../controllers/listingPropertyController');
 const { protect, restrictTo } = require('../controllers/authController');
 
+router.get('/:propertyId/tokenSupply', listingPropertyController.getTokenSupply);
+
 router.get('/:id', listingPropertyController.getListingProperty);
 router.get('/', listingPropertyController.getAllListingProperties);
 

@@ -29,12 +29,15 @@ const DetailedHouse = () => {
 
   useEffect(() => {
     setLoading(true);
+
     const fetchProperty = async () => {
       try {
-        let response = await axios.get(BASE_URL + `/properties/${propertyId}`);
-        setProperty(response.data.data);
-        // setToken(response.data.data.token);
-        console.log(response.data.data)
+        const propertyResonse = await axios.get(BASE_URL + `/properties/${propertyId}`);
+        const tokenSupplyResponse = await axios.get(BASE_URL + `/listingProperties/${propertyId}/tokenSupply`);
+        
+        setProperty(propertyResonse.data.data);
+        setToken(tokenSupplyResponse.data.data);
+        
         setLoading(false);
       } catch (err) {
         console.log(err);
@@ -202,7 +205,7 @@ const DetailedHouse = () => {
               </div>
               <div className="titleRight">
                 <span>$</span>
-                <span>{loading ? <Skeleton /> : token?.token_price}</span>
+                <span>{loading ? <Skeleton /> : token?.tokenPrice}</span>
               </div>
             </div>
 
@@ -210,7 +213,7 @@ const DetailedHouse = () => {
               completed={100}
             />
             <div className="boxHeaderBottom">
-              <span>{loading ? <Skeleton /> : token?.quantity} tokens</span>
+              <span>{loading ? <Skeleton /> : token?.tokenSupply} tokens</span>
             </div>
           </div>
           <div className="boxBody">

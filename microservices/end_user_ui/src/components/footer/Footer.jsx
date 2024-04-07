@@ -5,7 +5,6 @@ import "./footer.scss";
 const Footer = () => {
   const appTheme = useSelector(state => state.theme);
 
-
   return (
     <div className={`footer ${appTheme.themeColor === 'dark' ? 'darkTheme' : ''}`}>
       <ContentWrapper>
