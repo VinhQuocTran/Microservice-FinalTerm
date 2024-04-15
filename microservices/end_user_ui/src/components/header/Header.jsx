@@ -26,22 +26,10 @@ const Header = () => {
   };
 
   const handleProfileModalClick = async (e) => {
-    try {
-      const response = await axios.get(BASE_RENTAL_URL + `/rental_income_wallet/${currentUser.user?.id}`, {
-        headers: {
-          Authorization: `Bearer ${currentUser.token}`
-        }
-      });
-      let tempUser = JSON.parse(localStorage.getItem('user'));
-      tempUser.cashBalance = response.data.total_current_balance;
-      setUser(tempUser);
-    } catch (err) {
-        console.log(err);
-      }
-      profileModalRef.current.style.visibility = !isProfileModalOpened ? 'visible' : 'hidden';
-      profileModalRef.current.style.opacity = !isProfileModalOpened ? 1 : 0;
-      if (isProfileModalOpened) e.stopPropagation();
-      setIsProfileModalOpened(prevState => !prevState);
+    profileModalRef.current.style.visibility = !isProfileModalOpened ? 'visible' : 'hidden';
+    profileModalRef.current.style.opacity = !isProfileModalOpened ? 1 : 0;
+    if (isProfileModalOpened) e.stopPropagation();
+    setIsProfileModalOpened(prevState => !prevState);
   };
 
   const handleLogoutBtnClick = async () => {
@@ -124,31 +112,31 @@ const Header = () => {
           </div>
           <div className="inputForm">
             <label htmlFor="username">Username</label>
-            <input id="username" type="text" value={user?.username} onChange={(e) => setUser((prev) => ({ ...prev, username: e.target.value }))} />
+            <input id="username" type="text" value={currentUser.user?.username} onChange={(e) => setUser((prev) => ({ ...prev, username: e.target.value }))} />
           </div>
           <div className="inputForm">
             <label htmlFor="email">Email</label>
-            <input id="email" type="email" value={user?.email} readOnly />
+            <input id="email" type="email" value={currentUser.user?.email} readOnly />
           </div>
           <div className="inputForm">
             <label htmlFor="address">Address</label>
-            <input id="address" type="text" value={user?.address} onChange={(e) => setUser((prev) => ({ ...prev, address: e.target.value }))} />
+            <input id="address" type="text" value={currentUser.user?.address} onChange={(e) => setUser((prev) => ({ ...prev, address: e.target.value }))} />
           </div>
           <div className="inputForm">
             <label htmlFor="phoneNumber">Phone number</label>
-            <input id="phoneNumber" type="text" value={user?.phoneNumber} onChange={(e) => setUser((prev) => ({ ...prev, phoneNumber: e.target.value }))} />
+            <input id="phoneNumber" type="text" value={currentUser.user?.phoneNumber} onChange={(e) => setUser((prev) => ({ ...prev, phoneNumber: e.target.value }))} />
           </div>
           <div className="inputForm">
             <label htmlFor="residentId">Resident ID</label>
-            <input id="residentId" type="text" value={user?.residentId} onChange={(e) => setUser((prev) => ({ ...prev, residentId: e.target.value }))} />
+            <input id="residentId" type="text" value={currentUser.user?.residentId} onChange={(e) => setUser((prev) => ({ ...prev, residentId: e.target.value }))} />
           </div>
           <div className="inputForm">
             <label htmlFor="cashBalance">Cash balance</label>
-            <input id="cashBalance" type="number" min={0} value={user?.cashBalance} onChange={(e) => setUser((prev) => ({ ...prev, cashBalance: parseFloat(e.target.value) }))} />
+            <input id="cashBalance" type="number" min={0} value={currentUser.user?.cashBalance} onChange={(e) => setUser((prev) => ({ ...prev, cashBalance: parseFloat(e.target.value) }))} />
           </div>
           <div className="inputForm">
             <label htmlFor="tokenBalance">Token balance</label>
-            <input id="tokenBalance" type="number" min={0} value={user?.tokenBalance} onChange={(e) => setUser((prev) => ({ ...prev, tokenBalance: parseFloat(e.target.value) }))} />
+            <input id="tokenBalance" type="number" min={0} value={currentUser.user?.tokenBalance} onChange={(e) => setUser((prev) => ({ ...prev, tokenBalance: parseFloat(e.target.value) }))} />
           </div>
           <div className="submitBtns">
             <button type="button" onClick={updateProfileClick}>Save changes</button>

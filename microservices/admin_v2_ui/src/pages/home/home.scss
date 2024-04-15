@@ -1,0 +1,26 @@
+.home-wrapper {
+  min-height: 100vh;
+}
+
+.home-container {
+  height: 100%;
+  gap: 30px;
+
+  .home-btn {
+    padding: 12px 20px;
+    width: 220px;
+    background-color: #fff;
+    color: purple;
+    border-radius: 20px;
+    border: 2px solid purple;
+    text-align: center;
+    transition: all 300ms ease-in;
+
+    &:hover {
+      cursor: pointer;
+      color: #fff;
+      background-color: purple;
+      opacity: 0.875;
+    }
+  }
+}

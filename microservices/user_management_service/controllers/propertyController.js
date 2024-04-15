@@ -2,7 +2,9 @@ const factory = require("./handlerFactory");
 const Property = require("../models/Property");
 const SubmitProperty = require("../models/SubmitProperty");
 const ListingProperty = require("../models/ListingProperty");
-const Service = require('../models/Service');
+const PropertyTokenOwnership = require('../models/PropertyTokenOwnership');
+const Account = require('../models/Account');
+const Service = require("../models/Service");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 
@@ -24,10 +26,6 @@ const verifyProperty = catchAsync(async (req, res, next) => {
   const Account = require("../models/Account");
   const owner = await Account.findByPk(property.accountId);
 
-  // Update property.isVerified
-  property.isVerified = result;
-  await property.save();
-
   // Retrieve background check service
   const service = await Service.findByPk(serviceId);
 
@@ -43,7 +41,12 @@ const verifyProperty = catchAsync(async (req, res, next) => {
     submitType: "verification",
     fee: service.feePerTime,
     propertyId: id,
+    serviceId,
   });
+
+  // Update property.isVerified
+  property.isVerified = result;
+  await property.save();
 
   // Update user's cash balance
   owner.cashBalance -= service.feePerTime;
@@ -57,11 +60,12 @@ const verifyProperty = catchAsync(async (req, res, next) => {
 
 const requestListingProperty = catchAsync(async (req, res, next) => {
   const propertyId = req.params.id;
+  const serviceId = req.body.inspection;
   const totalPrice = parseInt(req.body.totalPrice);
 
   // user = req.user
   // check user's cash balance >= totalPrice
-  if (req.user.cashBalance >= totalPrice) {
+  if (req.user.cashBalance < totalPrice) {
     return next(new AppError("Cash balance is not valid.", 400));
   }
 
@@ -83,7 +87,8 @@ const requestListingProperty = catchAsync(async (req, res, next) => {
     note: "",
     fee: totalPrice,
     submitType: "listing",
-    propertyId
+    propertyId,
+    serviceId,
   });
 
   res.status(200).json({
@@ -93,52 +98,85 @@ const requestListingProperty = catchAsync(async (req, res, next) => {
   });
 });
 
-const listingProperty = catchAsync(async (req, res, next) => {
-  const { result, note } = req.body; // result = 1 or -1
-  const { propertyValuation, monthlyRent, tokenSupply, tokenPrice, serviceId } =
-    req.body;
+const listProperty = catchAsync(async (req, res, next) => {
+  const {
+    result,
+    note,
+    propertyValuation,
+    monthlyRent,
+    serviceId,
+  } = req.body;
   const id = req.params.id;
 
   const property = await Property.findByPk(id);
+
   if (!property) {
     return next(new AppError("There is no property match the ID.", 404));
   }
 
-  // update property.isVerified
-  property.isListed = result;
-  await property.save();
+  const propertyOwner = await Account.findByPk(property.accountId);
 
   // retrieve property manager service
   const service = await Service.findByPk(serviceId);
 
   // check user's cash balance >= service.feePerTime
-  if (req.user.cashBalance >= service.feePerTime) {
-    return next(new AppError('Cash balance is not valid.', 400));
+  if (propertyOwner.cashBalance < service.feePerTime) {
+    return next(new AppError("Property owner's cash balance is not valid.", 400));
   }
 
   // update user's cash balance
-  req.user.cashBalance -= service.feePerTime;
-  await req.user.save();
+  propertyOwner.cashBalance -= service.feePerTime;
+  await propertyOwner.save();
+
+  // update property.isListed
+  property.isListed = result;
+  await property.save();
 
   // update submit_property where submit_type=listing and propertyId=id
-  const submitProperty = await SubmitProperty.findOne({ where: { propertyId: id, submitType: 'listing' } });
+  const submitProperty = await SubmitProperty.findOne({
+    where: { propertyId: id, submitType: "listing" },
+  });
   submitProperty.result = result;
   submitProperty.fee += service.feePerTime;
+  submitProperty.note = note;
   await submitProperty.save();
 
-  // insert a new record to listing_property
-  await ListingProperty.create({
+  const listingProperty = await ListingProperty.create({
     propertyValuation,
     monthlyRent,
-    tokenSupply,
-    tokenPrice,
+    tokenSupply: propertyValuation / 50,
     submitPropertyId: submitProperty.id,
     serviceId,
+  });
+
+  // add a new record to property_token_ownership
+  await PropertyTokenOwnership.create({
+    ownNumber: propertyValuation / 50, // 50 is default token price 
+    listingPropertyId: listingProperty.id,
+    accountId: propertyOwner.id,
   });
 
   res.status(200).json({
     status: "success",
     message: "Listing property success",
+  });
+});
+
+const getRequestListingProperty = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const property = await Property.findByPk(id);
+  const submitProperty = await SubmitProperty.findOne({
+    where: { propertyId: id, submitType: "listing" },
+  });
+
+  const service = await Service.findByPk(submitProperty.serviceId);
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      property,
+      service,
+    },
   });
 });
 
@@ -150,5 +188,6 @@ module.exports = {
   assignAccountId,
   verifyProperty,
   requestListingProperty,
-  listingProperty,
+  listProperty,
+  getRequestListingProperty,
 };

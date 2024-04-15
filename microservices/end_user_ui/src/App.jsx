@@ -9,11 +9,11 @@ function App() {
   const appTheme = useSelector((state) => state.theme);
 
   return (
-    <div className={`app ${appTheme.themeColor === 'light' ? '' : 'darkTheme' }`}>
+    <div className={`app ${appTheme.themeColor === 'light' ? '' : 'darkTheme'}`}>
       <BrowserRouter>
         <Header />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={currentUser.user ? <Home /> : <Signin />} />
           <Route path="/properties/:propertyId" element={<DetailedHouse />} />
           <Route path="/my-property" element={currentUser.user ? <MyProperty /> : <Signin />} />
           <Route path="/token-ownership-and-rental-income" element={currentUser.user ? <TokenOwnership /> : <Signin />} />

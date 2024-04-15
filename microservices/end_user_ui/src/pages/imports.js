@@ -6,6 +6,7 @@ import Account from "./account/Account";
 import MyProperty from "./myProperty/MyProperty";
 import TokenOwnership from "./tokenOwnership/TokenOwnership";
 import Order from "./order/Order";
+import Error from "./error/Error";
 
 export {
   Home,
@@ -15,5 +16,6 @@ export {
   Account,
   MyProperty,
   TokenOwnership,
-  Order
+  Order,
+  Error
 };

@@ -20,7 +20,7 @@ const ListingProperty = sequelize.define(
     },
     tokenPrice: {
       type: DataTypes.DOUBLE,
-      allowNull: false,
+      defaultValue: 50,
     },
     submitPropertyId: {
       type: DataTypes.UUID,
@@ -51,15 +51,15 @@ ListingProperty.belongsTo(Service, { foreignKey: "serviceId" });
 // Hooks
 ListingProperty.addHook("beforeCreate", async (listingProperty, options) => {
   // Generate a custom ID like "LP_0001", "LP_0002", ...
-  const latestProperty = await Service.findOne({
+  const latestListingProperty = await ListingProperty.findOne({
     order: [["id", "DESC"]],
     attributes: ["id"],
   });
 
   let counter = 1;
-  if (latestProperty) {
-    const lastPropertyId = parseInt(latestProperty.id.split("_")[1], 10);
-    counter = lastPropertyId + 1;
+  if (latestListingProperty) {
+    const lastListingPropertyId = parseInt(latestListingProperty.id.split("_")[1], 10);
+    counter = lastListingPropertyId + 1;
   }
 
   const listingPropertyId = `LP_${counter.toString().padStart(4, "0")}`;

@@ -31,6 +31,11 @@ module.exports = {
         type: Sequelize.DataTypes.UUID,
         allowNull: false,
       },
+      serviceId: {
+        field: 'service_id',
+        type: Sequelize.DataTypes.UUID,
+        allowNull: false,
+      },
       createdAt: {
         field:  'created_at',
         type: Sequelize.DataTypes.DATE

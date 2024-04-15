@@ -28,7 +28,7 @@ module.exports = {
       tokenPrice: {
         field: 'token_price',
         type: Sequelize.DataTypes.DOUBLE,
-        allowNull: false,
+        defaultValue: 50
       },
       submitPropertyId: {
         field: 'submit_property_id',

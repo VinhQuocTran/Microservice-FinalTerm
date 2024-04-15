@@ -38,19 +38,19 @@ PropertyTokenOwnership.belongsTo(Account, { foreignKey: "accountId" });
 // Hooks
 PropertyTokenOwnership.addHook("beforeCreate", async (propertyTokenOwnership, options) => {
   // Generate a custom ID like "PTO_0001", "PTO_0002", ...
-  const latestProperty = await Service.findOne({
+  const latestPropertyTokenOwnerShip = await PropertyTokenOwnership.findOne({
     order: [["id", "DESC"]],
     attributes: ["id"],
   });
 
   let counter = 1;
-  if (latestProperty) {
-    const lastPropertyId = parseInt(latestProperty.id.split("_")[1], 10);
-    counter = lastPropertyId + 1;
+  if (latestPropertyTokenOwnerShip) {
+    const lastPropertyTokenOwnershipId = parseInt(latestPropertyTokenOwnerShip.id.split("_")[1], 10);
+    counter = lastPropertyTokenOwnershipId + 1;
   }
 
   const propertyTokenOwnershipId = `PTO_${counter.toString().padStart(4, "0")}`;
-  propertyTokenOwnershipId.id = propertyTokenOwnershipId;
+  propertyTokenOwnership.id = propertyTokenOwnershipId;
 });
 
 module.exports = PropertyTokenOwnership;

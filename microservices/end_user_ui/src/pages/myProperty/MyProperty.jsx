@@ -371,7 +371,7 @@ const MyProperty = () => {
 
     try {
       const response = await axios.post(
-        BASE_URL + `/properties/${listingPropertyId}/requestListingProperty`, //
+        BASE_URL + `/properties/${listingPropertyId}/requestListingProperty`, 
         Object.fromEntries(data),
         {
           headers: {
@@ -379,9 +379,7 @@ const MyProperty = () => {
           },
         }
       );
-      console.log(response.data);
       if (response.data.status === "success") {
-        console.log(response.data.data);
         const updatedUser = response.data.data;
 
         let user = localStorage.getItem("user");
@@ -397,6 +395,16 @@ const MyProperty = () => {
       listingPropertyModalRef.current.style.opacity = 0;
     } catch (err) {
       console.log(err);
+      toast.error("Cash balance is not valid", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
     }
   };
 

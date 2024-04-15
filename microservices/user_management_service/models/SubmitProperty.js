@@ -24,6 +24,10 @@ const SubmitProperty = sequelize.define(
       type: DataTypes.UUID,
       allowNull: false,
     },
+    serviceId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
     createdAt: {
       type: DataTypes.DATE,
     },
