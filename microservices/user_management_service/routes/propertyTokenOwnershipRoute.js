@@ -4,7 +4,7 @@ const { protect, restrictTo } = require('../controllers/authController');
 
 router.get('/:id', propertyTokenOwnershipController.getPropertyTokenOwnership);
 router.get('/', propertyTokenOwnershipController.getAllPropertyTokenOwnerShips);
-
+router.get('/getTokenOwnership/:userId/:tokenId', propertyTokenOwnershipController.getPropertyTokenOwnershipByUserIdAndTokenId);
 // // Protect all routes after this middleware
 router.use(protect);
 

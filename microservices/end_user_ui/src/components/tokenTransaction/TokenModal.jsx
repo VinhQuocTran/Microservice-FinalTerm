@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, TextField, Button, makeStyles } from '@material-ui/core';
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { BASE_URL } from "../../utils/api.js";
+import { BASE_OFFER_URL, BASE_URL } from "../../utils/api.js";
 import { useSelector } from "react-redux";
 const useStyles = makeStyles((theme) => ({
     modal: {
@@ -19,6 +19,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 const TokenModal = ({ isOpen, onClose, actionType, token,toast }) => {
     const classes = useStyles();
+    const { propertyId } = useParams();
+    const [tokenOwnerShip, setTokenOwnerShip] = useState(null);
+    const currentUser = useSelector(state => state.user)
+    const jwt = currentUser.token;
     const [formData, setFormData] = useState({
         quantity: 0,
         at_price: 0,
@@ -26,22 +30,18 @@ const TokenModal = ({ isOpen, onClose, actionType, token,toast }) => {
         is_buy: true
     });
 
-    const { propertyId } = useParams();
-    const [tokenOwnerShip, setTokenOwnerShip] = useState(null);
-    const currentUser = useSelector(state => state.user)
-    const jwt = currentUser.token;
     useEffect(() => {
         if (actionType === "sell" && isOpen === true) {
             const fetchTokenOwnerShip = async () => {
                 try {
-                    let response = await axios.get(BASE_URL + `/properties/getTokenOwnership/${currentUser.user.id}/${token.id}`, {
+                    let response = await axios.get(BASE_URL + `/propertyTokenOwnerships/getTokenOwnership/${currentUser.user.id}/${token.id}`, {
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${jwt}`,
                         }
                     });
-                    setTokenOwnerShip(response.data.data.tokenOwnerShip);
-                    console.log(response.data)
+                    
+                    setTokenOwnerShip(response.data.data.propertyTokenOwnership);
                 } catch (err) {
                     console.log(err);
                 }
@@ -84,7 +84,7 @@ const TokenModal = ({ isOpen, onClose, actionType, token,toast }) => {
                 ...formData,
                 ["is_buy"]: false
             });
-            let maxQuantity = tokenOwnerShip?.own_number;
+            let maxQuantity = tokenOwnerShip?.ownNumber;
             if (name === "quantity" && value >= 1 && value <= maxQuantity) {
                 setFormData({
                     ...formData,
@@ -109,21 +109,22 @@ const TokenModal = ({ isOpen, onClose, actionType, token,toast }) => {
     const handleFormSubmit = async (event) => {
         event.preventDefault();
         const data = new FormData(event.target)
+        data.append("account_id", currentUser.user.id);
         if (actionType === "buy") {
             data.append("is_buy", true);
         }
         else{
             data.append("is_buy", false);
         }
-        console.log(Object.fromEntries(data));
         try {
-            const response = await axios.post(BASE_URL + "/chains/offers", Object.fromEntries(data), {
+            const response = await axios.post(BASE_OFFER_URL + "/offers", Object.fromEntries(data), {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${jwt}`,
                 }
             });
-            if (response.data.status === "success") {
+            console.log(response.data);
+            if (response.data.account_id !== undefined) {
                 toast.success('Create offer success!', {
                     position: "top-right",
                     autoClose: 5000,
@@ -174,16 +175,16 @@ const TokenModal = ({ isOpen, onClose, actionType, token,toast }) => {
                     {actionType === 'sell' ? (
                         <>
                             <div style={{ marginBottom: '15px' }}>
-                                <span style={{ margin: '15px' }}>Current price: {token?.token_price}</span>
+                                <span style={{ margin: '15px' }}>Current price: {token?.tokenPrice}</span>
                             </div>
                             <div>
-                                <span style={{ margin: '15px' }}>Your tokens: {tokenOwnerShip?.own_number}</span>
+                                <span style={{ margin: '15px' }}>Your tokens: {tokenOwnerShip?.ownNumber}</span>
                             </div>
                             <TextField
                                 label="Quantity"
                                 type="number"
                                 name={"quantity"}
-                                inputProps={{ min: 1, max: tokenOwnerShip?.own_number }}
+                                inputProps={{ min: 1, max: token?.ownNumber }}
                                 value={formData.quantity}
                                 onChange={handleAmountChange}
                                 fullWidth
