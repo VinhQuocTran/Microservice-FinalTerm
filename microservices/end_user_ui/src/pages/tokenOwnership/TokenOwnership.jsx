@@ -45,6 +45,29 @@ const TokenOwnership = () => {
       accessorKey: 'withdraw_type_option',
     }
   ];
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    
+    return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
+}
+
+  const columns_tokenship = [
+    { header: "ID", accessorKey: "id" },
+    { header: "Own Number", accessorKey: "ownNumber" },
+    { header: "Listing Property ID", accessorKey: "listingPropertyId" },
+    { header: "Account ID", accessorKey: "accountId" },
+    { header: "Created At", accessorKey: "createdAt" ,
+    cell: (info) => {
+      return formatDate(info.getValue());
+    }
+  },
+];
 
   const handleWithdrawClick = async () => {
     try {
@@ -92,22 +115,14 @@ const TokenOwnership = () => {
   useEffect(() => {
     const fetchTokenOwnership = async () => {
       try {
-        const response = await axios.get(BASE_URL + `/chains/${currentUser.user.id}/tokenOwnership`);
-        setTokenOwnership(JSON.parse(response.data.data));
+        const response = await axios.get(BASE_URL + `/propertyTokenOwnerships/getTokenOwnerships/${currentUser.user.id}`);
+        setTokenOwnership(response.data.data.propertyTokenOwnership);
       } catch (err) {
         console.log(err);
       }
     }
     fetchTokenOwnership();
   }, [currentUser?.user]);
-
-  useEffect(() => {
-    const value = tokenOwnership?.reduce((accumulator, tokenOwnership) => {
-      return accumulator + tokenOwnership.total_current_balance;
-    }, 0);
-    console.log(value);
-    setTotalCurrentEarned(value?.toFixed(2));
-  }, [tokenOwnership]);
 
   useEffect(() => {
     const fetchHistoryWithdraw = async () => {
@@ -148,7 +163,7 @@ const TokenOwnership = () => {
         <div className="boxContainer">
           <h1 className="boxTitle">Token Ownership</h1>
           <div className="items">
-            {tokenOwnership && tokenOwnership?.map((item, index) => <TokenCard key={index} token={item} />)}
+            <BasicTable data={tokenOwnership || <Skeleton count={10} />} columns={columns_tokenship} />
           </div>
         </div>
       </ContentWrapper>

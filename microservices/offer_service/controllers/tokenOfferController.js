@@ -28,6 +28,29 @@ const createTokenOffer = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+const cancelOffer = async (req, res) => {
+    try {
+        const { offer_id } = req.params;
+        if (!offer_id) {
+            return res.status(400).json({ error: 'Offer ID is required' });
+        }
+        const tokenOffer = await TokenOffer.findByPk(offer_id);
+
+        if (!tokenOffer) {
+            return res.status(404).json({ error: 'Token offer not found' });
+        }
+        await tokenOffer.update({
+            is_active: false
+        });
+
+        res.status(200).json({ message: 'Token offer canceled successfully' });
+    } catch (error) {
+        // Handle errors
+        console.error('Error canceling token offer:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 
 const getAllActiveTokenOffers = async (req, res) => {
     try {
@@ -128,5 +151,6 @@ module.exports = {
     createTokenOffer,
     getAllActiveTokenOffers,
     getTokenOffersByAccountId,
+    cancelOffer,
     createTokenTransactionForAuction
 };

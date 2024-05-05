@@ -14,6 +14,7 @@ const monthlyPropertyValuationRoute = require('./routes/monthlyPropertyValuation
 const AppError = require('./utils/appError');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./docs/swagger.json');
+const { startPaymentDailyRentTask, getPaymentDailyRent } = require('./controllers/propertyTokenOwnershipController');
 
 const app = express();
 
@@ -22,7 +23,7 @@ app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
 app.use(cors());
-
+startPaymentDailyRentTask(getPaymentDailyRent);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/api/accounts', accountRoute);

@@ -11,8 +11,7 @@ class WithdrawController():
         if not wallet:
             return jsonify(message='Rental income wallet not found'), 404
         
-        total_income = RentalDailyIncomeTransaction.query.with_entities(func.sum(RentalDailyIncomeTransaction.income_amount))\
-            .filter(RentalDailyIncomeTransaction.account_id == account_id, RentalDailyIncomeTransaction.is_withdrawn == False).scalar() or 0 
+        total_income = wallet.total_current_balance 
         if total_income == 0:
             return jsonify(message='No income to withdraw'), 400
 
@@ -23,7 +22,7 @@ class WithdrawController():
             account_id=account_id
         )
         # Update the wallet balance
-        wallet.total_current_balance += total_income
+        wallet.total_current_balance  = 0
         db.session.commit()
         # Update the transaction status
         transactions_to_update = RentalDailyIncomeTransaction.query.filter(
@@ -40,9 +39,10 @@ class WithdrawController():
     def get_withdraws_by_account_id(self, account_id):
         withdraws = WithdrawIncome.query.filter_by(account_id=account_id).all()
         result = [{'id': w.id, 'withdraw_amount': w.withdraw_amount,'withdraw_date':w.withdraw_date, 'withdraw_type_option': w.withdraw_type_option, 'account_id': w.account_id} for w in withdraws]
-        total_withdraw = RentalDailyIncomeTransaction.query.with_entities(func.sum(RentalDailyIncomeTransaction.income_amount))\
-            .filter(RentalDailyIncomeTransaction.account_id == account_id, RentalDailyIncomeTransaction.is_withdrawn == False).scalar() or 0 
+        sorted_result = sorted(result, key=lambda x: x['withdraw_date'], reverse=True)
+        wallet = RentalIncomeWallet.query.filter_by(id=account_id).first()
+        print(wallet.total_current_balance)
         return jsonify({
-            "data":result,
-            "total_withdraw": total_withdraw
+            "data":sorted_result,
+            "total_withdraw": wallet.total_current_balance
         }), 200

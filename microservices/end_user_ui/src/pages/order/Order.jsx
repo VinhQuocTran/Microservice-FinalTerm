@@ -54,7 +54,7 @@ const Order = () => {
         const offerId = e.currentTarget.dataset.offer;
 
         try {
-            await axios.delete(BASE_URL + `/chains/orders/${offerId}`, {
+            await axios.get(BASE_OFFER_URL + `/offers/cancel/${offerId}`, {
                 headers: {
                     Authorization: `Bearer ${currentUser.token}`
                 }
